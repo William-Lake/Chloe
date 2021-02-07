@@ -17,13 +17,13 @@ jobs:
         run: |
           python -m pip install pyinstaller
           python -m pip install -r src/requirements.txt
-          pyinstaller --onefile src/search_files_for_value.py
       # - name: PyInstaller Windows
       #   uses: JackMcKew/pyinstaller-action-windows@main
       #   with:
       #     path: src
-      - name: Move Executable
-        run: |
-          mv src/dist/windows/*.exe CHLOE.exe
+      - name: Build EXE
+        run: pyinstaller --onefile src/search_files_for_value.py
+      - name: View Dir structure
+        run: dir
       - name: Test Executable
-        run: CHLOE.exe -h
+        run: dist/CHLOE.exe -h
