@@ -1,4 +1,4 @@
-name: Build EXE and create release
+name: Build Test .exe
 on:
   push:
     branches:
@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    if: github.event_name == 'push' && contains(github.ref, 'refs/tags/v') && contains(github.ref, '-[TEST]')
+    if: contains(github.ref, 'refs/tags/v') && contains(github.ref, '-TEST')
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
