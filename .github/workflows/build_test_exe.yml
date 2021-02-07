@@ -6,7 +6,6 @@ on:
 
 jobs:
   build:
-    if: contains(github.ref, 'refs/tags/v') && contains(github.ref, '-TEST')
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
