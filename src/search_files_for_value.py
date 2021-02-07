@@ -1,5 +1,5 @@
 import atexit
-from argparse import ArgumentParser
+from argparse import ArgumentParser, RawTextHelpFormatter
 from collections import Counter
 from datetime import datetime
 import json
@@ -11,6 +11,8 @@ import string
 import random
 import traceback
 
+import colorama
+from colorama import Fore, Back, Style
 from tqdm import tqdm
 
 
@@ -305,17 +307,41 @@ def yield_file_batches(args):
 
 def gather_args(debug=False):
 
-    arg_parser = ArgumentParser()
+    arg_parser = ArgumentParser(formatter_class=RawTextHelpFormatter,prog='CHLOE.exe',description='Recursively searches a directory of files for a given value.',epilog=f'''
+=======================
 
-    arg_parser.add_argument("search_loc", type=Path)
+### Usage examples
 
-    arg_parser.add_argument("--search_terms", nargs="+")
+Searching for the word "test" in this dir.
 
-    arg_parser.add_argument("--dirs_to_avoid", nargs="*")
+    {Fore.CYAN}CHLOE.exe --search_terms test
 
-    arg_parser.add_argument("--output", choices=OUTPUT_CHOICES, default=OUTPUT_PRINT)
+{Fore.RESET}Searching for the word "test" and "phrase" in  a specified dir.
+
+    {Fore.CYAN}CHLOE.exe path/to/dir --search_terms test run
+
+{Fore.RESET}Searching for the word "java" in this dir, avoiding dirs named ".git" and "target".
+
+    {Fore.CYAN}CHLOE.exe --search_terms java --dirs_to_avoid ".git" target
+
+{Fore.RESET}Searching for the phrase "Who Framed Roger Rabbit?" in this dir, saving the output to a file.
+
+    {Fore.CYAN}CHLOE.exe --search_terms "Who Framed Roger Rabbit?" --output File
+
+{Fore.RESET}Searching for the phrase "test example" in .xml and .html files in this dir.
+
+    {Fore.CYAN}CHLOE.exe --search_terms "test example" --target_exts .xml .html
+''')
+
+    arg_parser.add_argument("search_loc", type=Path, nargs='?', default=Path('.'), help='The location to search')
+
+    arg_parser.add_argument("--search_terms", nargs="+",help='The terms to search for.')
+
+    arg_parser.add_argument("--dirs_to_avoid", nargs="*",help='Directories to avoid searching.')
+
+    arg_parser.add_argument("--output", choices=OUTPUT_CHOICES, default=OUTPUT_PRINT,help='How to provide the results.')
     
-    arg_parser.add_argument('--target_exts',nargs='*')
+    arg_parser.add_argument('--target_exts',nargs='*',help='The target file extensions to look for.')
 
     if debug:
 
@@ -336,12 +362,27 @@ def gather_args(debug=False):
 
         return arg_parser.parse_args()
 
+def print_banner():
+
+    print(f'''{Fore.CYAN}
+
+   ___ _  _ _    ___  ___ 
+  / __| || | |  / _ \| __|
+ | (__| __ | |_| (_) | _| 
+  \___|_||_|____\___/|___|
+                          
+{Fore.YELLOW}searCH fiLes fOr valuE{Fore.RESET}
+''')  
 
 if __name__ == "__main__":
 
     freeze_support()
 
     try:
+
+        colorama.init()
+
+        print_banner()
 
         args = gather_args(debug=DO_DEBUG)
 
