@@ -2,7 +2,7 @@ name: Build EXE and create release
 on:
   push:
     branches:
-      - "main"
+      - main
 
 jobs:
   build:

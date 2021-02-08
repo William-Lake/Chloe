@@ -2,3 +2,4 @@ Added second workflow for testing .exe when tag ending in -TEST is pushed from a
 Updated primary workflow to use a Windows runner.
 Updated primary workflow to use pyinstaller.
 Refactored directory structure now that I'm not using the windows pyinstaller github action anymore.
+Fixed bug in primary workflow.
