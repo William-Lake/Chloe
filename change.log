@@ -1,4 +1,2 @@
-Implemented colorama
-Added banner
-Enhanced help text
-Better usage examples
+Added second workflow for testing .exe when tag ending in -TEST is pushed from a branch with a name matching Issue_*.
+Updated primary workflow to use a Windows runner.
