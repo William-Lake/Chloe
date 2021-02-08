@@ -23,9 +23,5 @@ jobs:
       #     path: src
       - name: Build EXE
         run: pyinstaller --onefile src/search_files_for_value.py
-      - name: View Dir structure
-        run: dir dist
       - name: Test Executable
-        run: |
-          cd dist
-          CHLOE.exe -h
+        run: .\dist\search_files_for_value.exe -h
