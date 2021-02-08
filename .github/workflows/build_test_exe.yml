@@ -26,4 +26,6 @@ jobs:
       - name: View Dir structure
         run: dir dist
       - name: Test Executable
-        run: .\dist\CHLOE.exe -h
+        run: |
+          cd dist
+          CHLOE.exe -h
