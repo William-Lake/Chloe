@@ -17,13 +17,14 @@ jobs:
       - name: Get the version #https://github.community/t/how-to-get-just-the-tag-name/16241/10
         id: get_version
         run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}          
-      - name: PyInstaller Windows
-        uses: JackMcKew/pyinstaller-action-windows@main
-        with:
-          path: src
-      - name: Move Executable
+      - name: Install Dependencies
         run: |
-          mv src/dist/windows/*.exe CHLOE.exe
+          python -m pip install pyinstaller
+          python -m pip install -r requirements.txt
+      - name: Build EXE
+        run: pyinstaller --onefile search_files_for_value.py
+      - name: Move Executable
+        run: dist/search_files_for_value.exe CHLOE.exe
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -42,6 +43,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url:  ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./CHLOE.exe
+          asset_path: .\CHLOE.exe
           asset_name: CHLOE.exe
           asset_content_type: application/vnd.microsoft.portable-executable # https://stackoverflow.com/a/43916291
