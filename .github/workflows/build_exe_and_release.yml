@@ -6,11 +6,12 @@ on:
 
 jobs:
   build:
-    if: github.ref == 'main'
+    # if: github.ref == 'main'
     runs-on: windows-latest
     steps:
       - name: Test
-        run: echo "$GITHUB_REF"
+        shell: python
+        run: print(github.ref)
       # - uses: actions/checkout@v2
       # - name: Set up Python 3.8
       #   uses: actions/setup-python@v2
