@@ -2,7 +2,7 @@ name: Build EXE and create release
 on:
   push:
     tags:
-      - '*-RELEASE'
+      - 'v*.*.*'
 
 jobs:
   build:

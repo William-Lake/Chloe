@@ -1,6 +1,1 @@
-Added second workflow for testing .exe when tag ending in -TEST is pushed from a branch with a name matching Issue_*.
-Updated primary workflow to use a Windows runner.
-Updated primary workflow to use pyinstaller.
-Refactored directory structure now that I'm not using the windows pyinstaller github action anymore.
-Fixed bug in primary workflow.
-Fixed bug in test workflow.
+Changed the tag filter for when the workflows run.
