@@ -10,6 +10,7 @@ from multiprocessing import Pool, freeze_support
 import string
 import random
 import traceback
+from sys import exit
 
 import colorama
 from colorama import Fore, Back, Style
@@ -274,7 +275,7 @@ def yield_files(args):
         
     for ext in target_exts:
 
-        for file in tqdm(args.search_loc.glob("**/*"), leave=False, desc="Files"):
+        for file in tqdm(args.search_loc.glob(f"**/{ext}"), leave=False, desc="Files"):
 
             if file.is_dir():
                 continue
@@ -291,19 +292,54 @@ def yield_file_batches(args):
 
     files = []
 
-    for file in tqdm(yield_files(args), leave=False, desc="File Batches"):
+    pbar = tqdm(desc='File Batches',leave=False)
+
+    for file in yield_files(args):
 
         files.append(file)
 
         if len(files) >= NUM_FILES_IN_BATCH:
+
+            pbar.update(1)
 
             yield files
 
             files = []
 
     if files:
+
+        pbar.update(1)
+
         yield files
 
+    pbar.close()
+
+def args_acceptable(args):
+
+    search_loc = args.search_loc
+
+    search_terms = args.search_terms
+
+    if not search_loc.exists():
+
+        return False, f'{search_loc.__str__()} could not be found!'
+
+    if search_terms is None:
+
+        search_terms = []
+
+    search_terms = [
+        term
+        for term
+        in search_terms
+        if term is not None and len(term.strip()) > 0
+    ]
+
+    if not search_terms:
+
+        return False, 'Please provide at least one search term!'
+
+    return True, None
 
 def gather_args(debug=False):
 
@@ -331,6 +367,7 @@ Searching for the word "test" in this dir.
 {Fore.RESET}Searching for the phrase "test example" in .xml and .html files in this dir.
 
     {Fore.CYAN}CHLOE.exe --search_terms "test example" --target_exts .xml .html
+{Fore.RESET}
 ''')
 
     arg_parser.add_argument("search_loc", type=Path, nargs='?', default=Path('.'), help='The location to search')
@@ -360,7 +397,21 @@ Searching for the word "test" in this dir.
 
     else:
 
-        return arg_parser.parse_args()
+        args = arg_parser.parse_args()
+
+        args_ok, error_message = args_acceptable(args)
+
+        if args_ok:
+
+            return args
+
+        else:
+
+            arg_parser.print_help()
+
+            print(error_message)
+
+            exit()
 
 def print_banner():
 
@@ -424,4 +475,3 @@ if __name__ == "__main__":
 
         traceback.print_exc()
 
-    input("Press any key to exit.")

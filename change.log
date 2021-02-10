@@ -1,1 +1,3 @@
-Changed the tag filter for when the workflows run.
+Fixed bug with file batches progress bar.
+Fixed bug re: file extensions.
+If no args are provided, help text is now printed out.
