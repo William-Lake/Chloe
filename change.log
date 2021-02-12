@@ -1,1 +1,5 @@
-Added second progress bar to provide output re: number of results found as futures are resolved.
+Refactored interim results file so that:
+    - v2_results.json is no longer created.
+    - The file uses a uuid for its file name.
+    - The file exists in the tmp dir during runtime.
+Applied a black reformat.
