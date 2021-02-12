@@ -132,7 +132,14 @@ def determine_output_func(args):
         return print
 
 
-def provide_output(args,results_path):
+def provide_output(args, results_path):
+
+    # Is this really necessary?
+    if not results_path.exists():
+
+        print("No results found.")
+
+        return
 
     results = json.loads(open(results_path).read())
 
@@ -196,7 +203,7 @@ There was a common thread in {freq_type} when searching for {search_term}. The f
         output_func("None of the provided search terms were found in any of the files.")
 
 
-def save_results(filename,results_path):
+def save_results(filename, results_path):
 
     og_results = (
         json.loads(open(results_path).read()) if results_path.exists() else None
@@ -204,11 +211,7 @@ def save_results(filename,results_path):
 
     the_results = json.loads(open(filename).read())
 
-    num_new_results = sum([
-        len(v)
-        for v
-        in the_results.values()
-    ])
+    num_new_results = sum([len(v) for v in the_results.values()])
 
     if og_results is None:
 
@@ -265,19 +268,15 @@ def yield_completed_futures(futures):
 
 
 def yield_files(args):
-    
+
     if not args.target_exts:
-        
-        target_exts = ['*']
-        
+
+        target_exts = ["*"]
+
     else:
-        
-        target_exts = [
-            '.' + ext if ext[0] != '.' else ext
-            for ext
-            in args.target_exts
-        ]
-        
+
+        target_exts = ["." + ext if ext[0] != "." else ext for ext in args.target_exts]
+
     for ext in target_exts:
 
         for file in tqdm(args.search_loc.glob(f"**/{ext}"), leave=False, desc="Files"):
@@ -297,7 +296,7 @@ def yield_file_batches(args):
 
     files = []
 
-    pbar = tqdm(desc='File Batches',leave=False)
+    pbar = tqdm(desc="File Batches", leave=False)
 
     for file in yield_files(args):
 
@@ -319,6 +318,7 @@ def yield_file_batches(args):
 
     pbar.close()
 
+
 def args_acceptable(args):
 
     search_loc = args.search_loc
@@ -327,28 +327,30 @@ def args_acceptable(args):
 
     if not search_loc.exists():
 
-        return False, f'{search_loc.__str__()} could not be found!'
+        return False, f"{search_loc.__str__()} could not be found!"
 
     if search_terms is None:
 
         search_terms = []
 
     search_terms = [
-        term
-        for term
-        in search_terms
-        if term is not None and len(term.strip()) > 0
+        term for term in search_terms if term is not None and len(term.strip()) > 0
     ]
 
     if not search_terms:
 
-        return False, 'Please provide at least one search term!'
+        return False, "Please provide at least one search term!"
 
     return True, None
 
+
 def gather_args(debug=False):
 
-    arg_parser = ArgumentParser(formatter_class=RawTextHelpFormatter,prog='CHLOE.exe',description='Recursively searches a directory of files for a given value.',epilog=f'''
+    arg_parser = ArgumentParser(
+        formatter_class=RawTextHelpFormatter,
+        prog="CHLOE.exe",
+        description="Recursively searches a directory of files for a given value.",
+        epilog=f"""
 =======================
 
 ### Usage examples
@@ -373,17 +375,35 @@ Searching for the word "test" in this dir.
 
     {Fore.CYAN}CHLOE.exe --search_terms "test example" --target_exts .xml .html
 {Fore.RESET}
-''')
+""",
+    )
 
-    arg_parser.add_argument("search_loc", type=Path, nargs='?', default=Path('.'), help='The location to search')
+    arg_parser.add_argument(
+        "search_loc",
+        type=Path,
+        nargs="?",
+        default=Path("."),
+        help="The location to search",
+    )
 
-    arg_parser.add_argument("--search_terms", nargs="+",help='The terms to search for.')
+    arg_parser.add_argument(
+        "--search_terms", nargs="+", help="The terms to search for."
+    )
 
-    arg_parser.add_argument("--dirs_to_avoid", nargs="*",help='Directories to avoid searching.')
+    arg_parser.add_argument(
+        "--dirs_to_avoid", nargs="*", help="Directories to avoid searching."
+    )
 
-    arg_parser.add_argument("--output", choices=OUTPUT_CHOICES, default=OUTPUT_PRINT,help='How to provide the results.')
-    
-    arg_parser.add_argument('--target_exts',nargs='*',help='The target file extensions to look for.')
+    arg_parser.add_argument(
+        "--output",
+        choices=OUTPUT_CHOICES,
+        default=OUTPUT_PRINT,
+        help="How to provide the results.",
+    )
+
+    arg_parser.add_argument(
+        "--target_exts", nargs="*", help="The target file extensions to look for."
+    )
 
     if debug:
 
@@ -418,9 +438,11 @@ Searching for the word "test" in this dir.
 
             exit()
 
+
 def print_banner():
 
-    print(f'''{Fore.CYAN}
+    print(
+        f"""{Fore.CYAN}
 
    ___ _  _ _    ___  ___ 
   / __| || | |  / _ \| __|
@@ -428,7 +450,9 @@ def print_banner():
   \___|_||_|____\___/|___|
                           
 {Fore.YELLOW}searCH fiLes fOr valuE{Fore.RESET}
-''')  
+"""
+    )
+
 
 if __name__ == "__main__":
 
@@ -461,7 +485,7 @@ if __name__ == "__main__":
                         )
                     )
 
-                pbar = tqdm(desc='# New Results',leave=False)
+                pbar = tqdm(desc="# New Results", leave=False)
 
                 for future in yield_completed_futures(futures):
 
@@ -469,7 +493,7 @@ if __name__ == "__main__":
 
                     if filename is not None:
 
-                        num_new_results = save_results(filename,results_path)
+                        num_new_results = save_results(filename, results_path)
 
                         pbar.update(num_new_results)
 
@@ -477,11 +501,8 @@ if __name__ == "__main__":
 
                 pbar.close()
 
-            if results_path.exists():
-
-                provide_output(args,results_path)
+            provide_output(args, results_path)
 
     except Exception as e:
 
         traceback.print_exc()
-
