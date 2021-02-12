@@ -10,6 +10,7 @@ from multiprocessing import Pool, freeze_support
 import string
 import random
 import traceback
+import uuid
 from sys import exit
 
 import colorama
@@ -18,8 +19,6 @@ from tqdm import tqdm
 
 
 NUM_FILES_IN_BATCH = 100
-
-RESULTS_PATH = Path("v2_results.json")
 
 DO_DEBUG = False
 
@@ -133,9 +132,9 @@ def determine_output_func(args):
         return print
 
 
-def provide_output(args):
+def provide_output(args,results_path):
 
-    results = json.loads(open(RESULTS_PATH).read())
+    results = json.loads(open(results_path).read())
 
     output_func = determine_output_func(args)
 
@@ -192,17 +191,15 @@ There was a common thread in {freq_type} when searching for {search_term}. The f
                 + "\n\n"
             )
 
-        RESULTS_PATH.unlink()
-
     else:
 
         output_func("None of the provided search terms were found in any of the files.")
 
 
-def save_results(filename):
+def save_results(filename,results_path):
 
     og_results = (
-        json.loads(open(RESULTS_PATH).read()) if RESULTS_PATH.exists() else None
+        json.loads(open(results_path).read()) if results_path.exists() else None
     )
 
     the_results = json.loads(open(filename).read())
@@ -211,7 +208,7 @@ def save_results(filename):
         len(v)
         for v
         in the_results.values()
-    ]) if len(the_results) > 0 else 0 # Is this last check necessary?
+    ])
 
     if og_results is None:
 
@@ -229,7 +226,7 @@ def save_results(filename):
 
                 og_results[search_term] = target_files
 
-    with open(RESULTS_PATH, "w+") as out_file:
+    with open(results_path, "w+") as out_file:
 
         out_file.write(json.dumps(og_results, indent=4))
 
@@ -445,10 +442,9 @@ if __name__ == "__main__":
 
         args = gather_args(debug=DO_DEBUG)
 
-        if RESULTS_PATH.exists():
-            RESULTS_PATH.unlink()
-
         with tempfile.TemporaryDirectory() as tmp_dir:
+
+            results_path = Path(tmp_dir).joinpath(str(uuid.uuid4()))
 
             print(f"Temp Dir: " + tmp_dir)
 
@@ -473,7 +469,7 @@ if __name__ == "__main__":
 
                     if filename is not None:
 
-                        num_new_results = save_results(filename)
+                        num_new_results = save_results(filename,results_path)
 
                         pbar.update(num_new_results)
 
@@ -481,9 +477,9 @@ if __name__ == "__main__":
 
                 pbar.close()
 
-        if RESULTS_PATH.exists():
+            if results_path.exists():
 
-            provide_output(args)
+                provide_output(args,results_path)
 
     except Exception as e:
 
