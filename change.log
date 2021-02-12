@@ -1,3 +1,1 @@
-Fixed bug with file batches progress bar.
-Fixed bug re: file extensions.
-If no args are provided, help text is now printed out.
+Added second progress bar to provide output re: number of results found as futures are resolved.
