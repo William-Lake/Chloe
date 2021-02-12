@@ -207,6 +207,12 @@ def save_results(filename):
 
     the_results = json.loads(open(filename).read())
 
+    num_new_results = sum([
+        len(v)
+        for v
+        in the_results.values()
+    ]) if len(the_results) > 0 else 0 # Is this last check necessary?
+
     if og_results is None:
 
         og_results = the_results
@@ -226,6 +232,8 @@ def save_results(filename):
     with open(RESULTS_PATH, "w+") as out_file:
 
         out_file.write(json.dumps(og_results, indent=4))
+
+    return num_new_results
 
 
 def yield_completed_futures(futures):
@@ -457,15 +465,21 @@ if __name__ == "__main__":
                         )
                     )
 
+                pbar = tqdm(desc='# New Results',leave=False)
+
                 for future in yield_completed_futures(futures):
 
                     filename = future.get()
 
                     if filename is not None:
 
-                        save_results(filename)
+                        num_new_results = save_results(filename)
+
+                        pbar.update(num_new_results)
 
                     filename.unlink()
+
+                pbar.close()
 
         if RESULTS_PATH.exists():
 
