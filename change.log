@@ -1,5 +1,1 @@
-Refactored interim results file so that:
-    - v2_results.json is no longer created.
-    - The file uses a uuid for its file name.
-    - The file exists in the tmp dir during runtime.
-Applied a black reformat.
+Errors occuring while reading files will now be tracked and provided during the final output.

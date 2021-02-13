@@ -9,6 +9,7 @@ import time
 from multiprocessing import Pool, freeze_support
 import traceback
 import uuid
+import statistics
 from sys import exit
 
 import colorama
@@ -156,11 +157,31 @@ def provide_output(args, results_path, errors_path):
         # TODO file paths in the exception string may miscontrue results.
         error_freqs = dict(Counter(list(error_results.values())).most_common())
 
-        output_func("Here's a list of the errors that showed up more than once:\n")
+        median = statistics.median(error_freqs.values())
+
+        output_func('Here\'s some general stats about the error frequencies:\n')
+
+        median_val = statistics.median(error_freqs.values())
+
+        output_func(f'''
+
+    Mean:   {statistics.mean(error_freqs.values())}
+    Median: {median_val}
+    Mode:   {statistics.mode(error_freqs.values())}
+
+''')
+
+        output_func(f"Here's a list of the errors with a frequency >= the median value ({statistics.median(error_freqs.values())}):\n")
 
         for error, freq in error_freqs.items():
 
-            output_func(f"\t[{freq}] {error}\n")
+            if freq > median_val: output_func(f"\t[{freq}] {error}\n")
+
+        output_func('Here\'s a complete list of the files and the errors that occured:\n')
+
+        for filename, error in error_results.values():
+
+            output_func(f'{filename} : {error}\n')
 
     results = json.loads(open(results_path).read()) if results_path.exists() else {}
 
