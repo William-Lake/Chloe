@@ -7,8 +7,6 @@ from pathlib import Path
 import tempfile
 import time
 from multiprocessing import Pool, freeze_support
-import string
-import random
 import traceback
 import uuid
 from sys import exit
@@ -31,43 +29,38 @@ OUTPUT_CHOICES = [OUTPUT_FILE, OUTPUT_PRINT]
 
 class FileProcessor:
     @staticmethod
-    def collect_file_content(file):
-
-        try:
-
-            return str(open(file, "rb").read())
-
-        except Exception as e:
-
-            print("Exception while reading file.", file, str(e))
-
-    @staticmethod
     def yield_files_with_terms(files, search_terms):
 
         for file in files:
 
-            file_content = FileProcessor.collect_file_content(file)
+            try:
 
-            if file_content is None:
-                continue
+                file_content = str(open(file, "rb").read()).strip().upper()
 
-            for search_term in search_terms:
+                for search_term in search_terms:
 
-                if search_term in file_content:
+                    if search_term.upper() in file_content.upper():
 
-                    yield search_term, file
+                        yield search_term, file
+
+            except Exception as e:
+
+                yield e, file
 
     @staticmethod
     def determine_file_name(tmp_dir):
 
-        while True:
+        file_name = None
 
-            name = "".join(random.choices(string.ascii_letters, k=20))
+        while file_name is None:
 
-            name = Path(tmp_dir).joinpath(f"{name}.json")
+            file_name = uuid.uuid4().__str__()
 
-            if not name.exists():
-                return name
+            file_name = Path(tmp_dir).joinpath(file_name)
+
+            file_name = None if file_name.exists() else file_name
+
+        return file_name
 
     @staticmethod
     def process_files(tmp_dir, files, search_terms):
@@ -76,19 +69,35 @@ class FileProcessor:
 
             results = {search_term: [] for search_term in search_terms}
 
+            errors = {}
+
             for search_term, file in FileProcessor.yield_files_with_terms(
                 files, search_terms
             ):
 
-                results[search_term].append(file.__str__())
+                if isinstance(search_term, Exception):
 
-            if results:
+                    errors[file.__str__()] = search_term.__str__()
+
+                else:
+
+                    results[search_term].append(file.__str__())
+
+            if any([len(collec) > 0 for collec in [results, errors]]):
 
                 filename = FileProcessor.determine_file_name(tmp_dir)
 
-                with open(filename, "w+") as out_file:
+                if results:
 
-                    out_file.write(json.dumps(results))
+                    with open(filename, "w+") as out_file:
+
+                        out_file.write(json.dumps(results))
+
+                if errors:
+
+                    with open(filename.with_suffix(".error"), "w+") as out_file:
+
+                        out_file.write(json.dumps(errors))
 
                 return filename
 
@@ -132,18 +141,28 @@ def determine_output_func(args):
         return print
 
 
-def provide_output(args, results_path):
-
-    # Is this really necessary?
-    if not results_path.exists():
-
-        print("No results found.")
-
-        return
-
-    results = json.loads(open(results_path).read())
+def provide_output(args, results_path, errors_path):
 
     output_func = determine_output_func(args)
+
+    if errors_path.exists():
+
+        error_results = json.loads(open(errors_path).read())
+
+        output_func(
+            f"### {len(error_results)} files could not be searched due to errors while trying to read their content. ###\n"
+        )
+
+        # TODO file paths in the exception string may miscontrue results.
+        error_freqs = dict(Counter(list(error_results.values())).most_common())
+
+        output_func("Here's a list of the errors that showed up more than once:\n")
+
+        for error, freq in error_freqs.items():
+
+            output_func(f"\t[{freq}] {error}\n")
+
+    results = json.loads(open(results_path).read()) if results_path.exists() else {}
 
     if any([len(val) > 0 for val in results.values()]):
 
@@ -468,9 +487,11 @@ if __name__ == "__main__":
 
         with tempfile.TemporaryDirectory() as tmp_dir:
 
-            results_path = Path(tmp_dir).joinpath(str(uuid.uuid4()))
+            results_path = Path(tmp_dir).joinpath(uuid.uuid4().__str__())
 
-            print(f"Temp Dir: " + tmp_dir)
+            errors_path = results_path.with_name("_error")
+
+            print("Temp Dir: " + tmp_dir)
 
             with Pool() as pool:
 
@@ -497,11 +518,30 @@ if __name__ == "__main__":
 
                         pbar.update(num_new_results)
 
+                        error_file = filename.with_suffix(".error")
+
+                        if error_file.exists():
+
+                            error_content = json.loads(open(error_file).read())
+
+                            existing_errors = (
+                                {}
+                                if not errors_path.exists()
+                                else json.loads(open(errors_path).read())
+                            )
+
+                            existing_errors.update(error_content)
+
+                            with open(errors_path, "w+") as out_file:
+                                out_file.write(json.dumps(existing_errors))
+
+                            error_file.unlink()
+
                     filename.unlink()
 
                 pbar.close()
 
-            provide_output(args, results_path)
+            provide_output(args, results_path, errors_path)
 
     except Exception as e:
 
