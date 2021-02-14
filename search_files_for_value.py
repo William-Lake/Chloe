@@ -19,6 +19,8 @@ from tqdm import tqdm
 
 NUM_FILES_IN_BATCH = 100
 
+NUM_FUTURES_IN_BATCH = 100
+
 DO_DEBUG = False
 
 OUTPUT_FILE = "File"
@@ -332,6 +334,44 @@ def yield_files(args):
             yield file
 
 
+def resolve_futures(futures,results_path,errors_path):
+
+    pbar = tqdm(desc="# New Results", leave=False)
+
+    for future in yield_completed_futures(futures):
+
+        filename = future.get()
+
+        if filename is not None:
+
+            num_new_results = save_results(filename, results_path)
+
+            pbar.update(num_new_results)
+
+            error_file = filename.with_suffix(".error")
+
+            if error_file.exists():
+
+                error_content = json.loads(open(error_file).read())
+
+                existing_errors = (
+                    {}
+                    if not errors_path.exists()
+                    else json.loads(open(errors_path).read())
+                )
+
+                existing_errors.update(error_content)
+
+                with open(errors_path, "w+") as out_file:
+                    out_file.write(json.dumps(existing_errors))
+
+                error_file.unlink()
+
+        filename.unlink()
+
+    pbar.close()    
+
+
 def yield_file_batches(args):
 
     files = []
@@ -527,40 +567,13 @@ if __name__ == "__main__":
                         )
                     )
 
-                pbar = tqdm(desc="# New Results", leave=False)
+                    if len(futures) == NUM_FILES_IN_BATCH:
 
-                for future in yield_completed_futures(futures):
+                        resolve_futures(futures,results_path,errors_path)
 
-                    filename = future.get()
+                        futures = []
 
-                    if filename is not None:
-
-                        num_new_results = save_results(filename, results_path)
-
-                        pbar.update(num_new_results)
-
-                        error_file = filename.with_suffix(".error")
-
-                        if error_file.exists():
-
-                            error_content = json.loads(open(error_file).read())
-
-                            existing_errors = (
-                                {}
-                                if not errors_path.exists()
-                                else json.loads(open(errors_path).read())
-                            )
-
-                            existing_errors.update(error_content)
-
-                            with open(errors_path, "w+") as out_file:
-                                out_file.write(json.dumps(existing_errors))
-
-                            error_file.unlink()
-
-                    filename.unlink()
-
-                pbar.close()
+                resolve_futures(futures,results_path,errors_path)
 
             provide_output(args, results_path, errors_path)
 
