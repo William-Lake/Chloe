@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 import tempfile
 import time
-from multiprocessing import Pool, freeze_support
+from multiprocessing import Pool, freeze_support, cpu_count
 import traceback
 import uuid
 import statistics
@@ -411,6 +411,22 @@ def args_acceptable(args):
 
         return False, "Please provide at least one search term!"
 
+    if args.num_futures_in_batch <= 0:
+
+        return False, "The number of futures in the batch must be >= 1!"
+
+    if args.num_files_in_batch <= 1:
+
+        return False, "The number of files in the batch must be > 1!"
+
+    if args.num_processes <= 0:
+
+        return False, "The number of proceses must be >= 1!"
+
+    if args.num_processes > cpu_count():
+
+        return False, f"The number of processes must be <= {cpu_count()}!"
+
     return True, None
 
 
@@ -483,6 +499,10 @@ Searching for the word "test" in this dir.
         '--num_files_in_batch', nargs='*', default=100, help='The max number of files in each processing batch.'
     )
 
+    arg_parser.add_argument(
+        '--num_processes',nargs='*',default=cpu_count(),help='The number of processes to use when processing batches.'
+    )
+
     if debug:
 
         return arg_parser.parse_args(
@@ -552,7 +572,7 @@ if __name__ == "__main__":
 
             print("Temp Dir: " + tmp_dir)
 
-            with Pool() as pool:
+            with Pool(processes=args.num_processes) as pool:
 
                 futures = []
 
