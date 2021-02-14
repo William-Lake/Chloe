@@ -1,1 +1,1 @@
-Fixed bug re: while variable was used to determine when to resolve a batch.
+Added param or number of futures in batch.
