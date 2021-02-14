@@ -19,8 +19,6 @@ from tqdm import tqdm
 
 NUM_FILES_IN_BATCH = 100
 
-NUM_FUTURES_IN_BATCH = 50
-
 DO_DEBUG = False
 
 OUTPUT_FILE = "File"
@@ -479,6 +477,10 @@ Searching for the word "test" in this dir.
         "--target_exts", nargs="*", help="The target file extensions to look for."
     )
 
+    arg_parser.add_argument(
+        '--num_futures_in_batch',nargs='*', default=50, help='The number of futures allowed in a group before pausing to resolve them.'
+    )
+
     if debug:
 
         return arg_parser.parse_args(
@@ -561,7 +563,7 @@ if __name__ == "__main__":
                         )
                     )
 
-                    if len(futures) == NUM_FUTURES_IN_BATCH:
+                    if len(futures) == args.num_futures_in_batch:
 
                         resolve_futures(futures,results_path,errors_path)
 
