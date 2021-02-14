@@ -17,8 +17,6 @@ from colorama import Fore, Back, Style
 from tqdm import tqdm
 
 
-NUM_FILES_IN_BATCH = 100
-
 DO_DEBUG = False
 
 OUTPUT_FILE = "File"
@@ -374,7 +372,7 @@ def yield_file_batches(args):
 
         files.append(file)
 
-        if len(files) >= NUM_FILES_IN_BATCH:
+        if len(files) >= args.num_files_in_batch:
 
             pbar.update(1)
 
@@ -479,6 +477,10 @@ Searching for the word "test" in this dir.
 
     arg_parser.add_argument(
         '--num_futures_in_batch',nargs='*', default=50, help='The number of futures allowed in a group before pausing to resolve them.'
+    )
+
+    arg_parser.add_argument(
+        '--num_files_in_batch', nargs='*', default=100, help='The max number of files in each processing batch.'
     )
 
     if debug:
