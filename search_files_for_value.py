@@ -316,6 +316,14 @@ def yield_files(args):
 
         target_exts = ["." + ext if ext[0] != "." else ext for ext in args.target_exts]
 
+    if not args.exts_to_avoid:
+
+        exts_to_avoid = []
+
+    else:
+
+        exts_to_avoid = ["." + ext if ext[0] != "." else ext for ext in args.exts_to_avoid]
+
     for ext in target_exts:
 
         for file in tqdm(args.search_loc.glob(f"**/{ext}"), leave=False, desc="Files"):
@@ -326,6 +334,9 @@ def yield_files(args):
             if args.dirs_to_avoid is not None and any(
                 [dir in file.parts for dir in args.dirs_to_avoid]
             ):
+                continue
+
+            if file.suffix in exts_to_avoid:
                 continue
 
             yield file
@@ -496,6 +507,10 @@ Searching for the word "test" in this dir.
 
     arg_parser.add_argument(
         "--target_exts", nargs="*", help="The target file extensions to look for."
+    )
+
+    arg_parser.add_argument(
+        '--exts_to_avoid',nargs='*',help='The target file extensions to avoid.'
     )
 
     arg_parser.add_argument(
