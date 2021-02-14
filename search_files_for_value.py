@@ -501,6 +501,7 @@ Searching for the word "test" in this dir.
     arg_parser.add_argument(
         "--num_futures_in_batch",
         nargs="?",
+        type=int,
         default=50,
         help="The number of futures allowed in a group before pausing to resolve them.",
     )
@@ -508,6 +509,7 @@ Searching for the word "test" in this dir.
     arg_parser.add_argument(
         "--num_files_in_batch",
         nargs="?",
+        type=int,
         default=100,
         help="The max number of files in each processing batch.",
     )
@@ -515,6 +517,7 @@ Searching for the word "test" in this dir.
     arg_parser.add_argument(
         "--num_processes",
         nargs="?",
+        type=int,
         default=cpu_count(),
         help="The number of processes to use when processing batches.",
     )
