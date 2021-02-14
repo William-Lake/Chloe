@@ -575,6 +575,8 @@ if __name__ == "__main__":
 
     freeze_support()
 
+    start_time = time.time()
+
     try:
 
         colorama.init()
@@ -617,3 +619,15 @@ if __name__ == "__main__":
     except Exception as e:
 
         traceback.print_exc()
+
+    time_in_seconds = time.time() - start_time
+
+    time_in_minutes = time_in_seconds / 60
+
+    time_in_hours = time_in_minutes/ 60
+
+    total_time, time_label = (time_in_hours, 'hours') if time_in_hours >= 1 else (time_in_minutes, 'minutes')
+    
+    if total_time < 1: total_time, time_label = (time_in_seconds, 'seconds')
+
+    print(f'Total runtime: {total_time:.2f} {time_label}.')
