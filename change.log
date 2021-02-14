@@ -1,1 +1,1 @@
-Futures now resolved in batches.
+Altered future batch resolution to reduce number of futres in batch and removed wait time before reviewing entire batch.

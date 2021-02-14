@@ -19,7 +19,7 @@ from tqdm import tqdm
 
 NUM_FILES_IN_BATCH = 100
 
-NUM_FUTURES_IN_BATCH = 100
+NUM_FUTURES_IN_BATCH = 50
 
 DO_DEBUG = False
 
@@ -282,8 +282,6 @@ def yield_completed_futures(futures):
 
     pbar = tqdm(total=len(futures), leave=False)
 
-    sleep_time = (NUM_FILES_IN_BATCH / 10) * 2
-
     while len(futures) > 0:
 
         futures_to_remove = []
@@ -301,10 +299,6 @@ def yield_completed_futures(futures):
         for future in futures_to_remove:
 
             futures.remove(future)
-
-        if len(futures) > 0:
-
-            time.sleep(sleep_time)
 
     pbar.close()
 
