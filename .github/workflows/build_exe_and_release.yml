@@ -22,7 +22,7 @@ jobs:
           python -m pip install pyinstaller
           python -m pip install -r requirements.txt
       - name: Build EXE
-        run: pyinstaller --onefile search_files_for_value.py
+        run: pyinstaller --onefile --icon=CHLOE.ico search_files_for_value.py
       - name: Move Executable
         run: move dist/search_files_for_value.exe CHLOE.exe
       - name: Create Release
