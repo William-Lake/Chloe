@@ -561,7 +561,7 @@ if __name__ == "__main__":
                         )
                     )
 
-                    if len(futures) == NUM_FILES_IN_BATCH:
+                    if len(futures) == NUM_FUTURES_IN_BATCH:
 
                         resolve_futures(futures,results_path,errors_path)
 

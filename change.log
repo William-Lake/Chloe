@@ -1,1 +1,1 @@
-Altered future batch resolution to reduce number of futres in batch and removed wait time before reviewing entire batch.
+Fixed bug re: while variable was used to determine when to resolve a batch.
