@@ -1,2 +1,3 @@
 Added param for number of futures in batch.
 Added param for number of files in batch.
+Added arg for number of processes.

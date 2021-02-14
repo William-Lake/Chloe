@@ -157,29 +157,36 @@ def provide_output(args, results_path, errors_path):
 
         median = statistics.median(error_freqs.values())
 
-        output_func('Here\'s some general stats about the error frequencies:\n')
+        output_func("Here's some general stats about the error frequencies:\n")
 
         median_val = statistics.median(error_freqs.values())
 
-        output_func(f'''
+        output_func(
+            f"""
 
     Mean:   {statistics.mean(error_freqs.values())}
     Median: {median_val}
     Mode:   {statistics.mode(error_freqs.values())}
 
-''')
+"""
+        )
 
-        output_func(f"Here's a list of the errors with a frequency >= the median value ({statistics.median(error_freqs.values())}):\n")
+        output_func(
+            f"Here's a list of the errors with a frequency >= the median value ({statistics.median(error_freqs.values())}):\n"
+        )
 
         for error, freq in error_freqs.items():
 
-            if freq > median_val: output_func(f"\t[{freq}] {error}\n")
+            if freq > median_val:
+                output_func(f"\t[{freq}] {error}\n")
 
-        output_func('Here\'s a complete list of the files and the errors that occured:\n')
+        output_func(
+            "Here's a complete list of the files and the errors that occured:\n"
+        )
 
         for filename, error in error_results.values():
 
-            output_func(f'{filename} : {error}\n')
+            output_func(f"{filename} : {error}\n")
 
     results = json.loads(open(results_path).read()) if results_path.exists() else {}
 
@@ -324,7 +331,7 @@ def yield_files(args):
             yield file
 
 
-def resolve_futures(futures,results_path,errors_path):
+def resolve_futures(futures, results_path, errors_path):
 
     pbar = tqdm(desc="# New Results", leave=False)
 
@@ -359,7 +366,7 @@ def resolve_futures(futures,results_path,errors_path):
 
         filename.unlink()
 
-    pbar.close()    
+    pbar.close()
 
 
 def yield_file_batches(args):
@@ -492,15 +499,24 @@ Searching for the word "test" in this dir.
     )
 
     arg_parser.add_argument(
-        '--num_futures_in_batch',nargs='*', default=50, help='The number of futures allowed in a group before pausing to resolve them.'
+        "--num_futures_in_batch",
+        nargs="*",
+        default=50,
+        help="The number of futures allowed in a group before pausing to resolve them.",
     )
 
     arg_parser.add_argument(
-        '--num_files_in_batch', nargs='*', default=100, help='The max number of files in each processing batch.'
+        "--num_files_in_batch",
+        nargs="*",
+        default=100,
+        help="The max number of files in each processing batch.",
     )
 
     arg_parser.add_argument(
-        '--num_processes',nargs='*',default=cpu_count(),help='The number of processes to use when processing batches.'
+        "--num_processes",
+        nargs="*",
+        default=cpu_count(),
+        help="The number of processes to use when processing batches.",
     )
 
     if debug:
@@ -587,11 +603,11 @@ if __name__ == "__main__":
 
                     if len(futures) == args.num_futures_in_batch:
 
-                        resolve_futures(futures,results_path,errors_path)
+                        resolve_futures(futures, results_path, errors_path)
 
                         futures = []
 
-                resolve_futures(futures,results_path,errors_path)
+                resolve_futures(futures, results_path, errors_path)
 
             provide_output(args, results_path, errors_path)
 
