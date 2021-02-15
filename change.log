@@ -1,1 +1,2 @@
-Broke up script.
+Removed epilog from help text.
+Added arg re: output types (Table, Descriptive).
