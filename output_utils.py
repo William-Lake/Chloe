@@ -175,21 +175,41 @@ def write_tabular_output(args,results_path,errors_path,output_func,out_path):
 
     if any([len(val) > 0 for val in results.values()]):
 
-        results_df = pd.DataFrame({'Search Term':[],'Path':[]})
+        if isinstance(list(results.values())[0],list):
 
-        for search_term, locations in results.items():
+            results_df = pd.DataFrame({'Search Term':[],'Path':[]})
 
-            for loc in locations:
+            for search_term, locations in results.items():
 
-                results_df.loc[len(results_df)] = [search_term,loc]
+                for loc in locations:
 
-        if out_path is not None:
+                    results_df.loc[len(results_df)] = [search_term,loc]
 
-            results_df.to_csv(out_path,index=False)
+            if out_path is not None:
+
+                results_df.to_csv(out_path,index=False)
+
+            else:
+
+                output_func(results_df.to_string())
 
         else:
 
-            output_func(results_df.to_string())
+            results_df = pd.DataFrame({'Search Term':[],'Path':[], 'Line #':[]})
+
+            for search_term, locations in results.items():
+
+                for loc,line_nums in locations.items():
+
+                    results_df.loc[len(results_df)] = [search_term,loc,line_nums]
+
+            if out_path is not None:
+
+                results_df.to_csv(out_path,index=False)
+
+            else:
+
+                output_func(results_df.to_string())                            
 
     else:
 

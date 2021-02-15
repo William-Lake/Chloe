@@ -25,7 +25,7 @@ class FileProcessor:
                 yield e, file
 
     @staticmethod
-    def process_files(tmp_dir, files, search_terms):
+    def process_files(tmp_dir, files, search_terms, do_add_line_num):
 
         try:
 
@@ -51,6 +51,10 @@ class FileProcessor:
 
                 if results:
 
+                    if do_add_line_num:
+
+                        results = FileProcessor.add_line_num_to_results(results)
+
                     with open(filename, "w+") as out_file:
 
                         out_file.write(json.dumps(results))
@@ -66,3 +70,48 @@ class FileProcessor:
         except:
 
             traceback.print_exc()
+
+    @staticmethod
+    def add_line_num_to_results(results):
+
+        new_results = {
+            search_term:{}
+            for search_term
+            in set(results.keys())
+        }
+
+        file_search_terms = {}
+
+        for search_term, files in results.items():
+
+            for file in files:
+
+                if file not in file_search_terms.keys(): file_search_terms[file] = set()
+
+                file_search_terms[file].add(search_term)
+
+        for file, search_terms in file_search_terms.items():
+
+            for search_term, line_num in FileProcessor.yield_lines_with_search_terms(file,search_terms):
+
+                if file not in new_results[search_term].keys():
+
+                    new_results[search_term][file] = []
+
+                new_results[search_term][file].append(line_num)
+
+        return new_results
+
+    @staticmethod
+    def yield_lines_with_search_terms(file,search_terms):
+
+        with open(file,'rb') as in_file:
+
+            for idx, line in enumerate(in_file):
+
+                for search_term in search_terms:
+
+                    if search_term.upper() in str(line).upper():
+
+                        yield search_term, idx + 1
+

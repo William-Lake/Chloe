@@ -61,7 +61,19 @@ def save_results(filename, results_path):
 
             if search_term in og_results.keys():
 
-                og_results[search_term].extend(target_files)
+                if isinstance(target_files,list):
+
+                    og_results[search_term].extend(target_files)
+
+                else:
+
+                    for file, line_nums in target_files.items():
+
+                        if file not in og_results[search_term].keys():
+
+                            og_results[search_term][file] = []
+
+                        og_results[search_term][file].append(', '.join(str(line_num) for line_num in line_nums))
 
             else:
 

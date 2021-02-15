@@ -46,6 +46,10 @@ def args_acceptable(args):
 
         return False, f"The number of processes must be <= {cpu_count()}!"
 
+    if args.line_num:
+
+        print('WARNING: --line_num MAY SIGNIFICANTLY INCREASE RUNTIME!')
+
     return True, None
 
 
@@ -117,6 +121,12 @@ def gather_args(debug=False):
         type=int,
         default=cpu_count(),
         help="The number of processes to use when processing batches.",
+    )
+
+    arg_parser.add_argument(
+        '--line_num',
+        action='store_true',
+        help='If provided, will also identify what line each search term is on. WARNING: INCREASES RUNTIME SIGNIFICANTLY.'
     )
 
     if debug:
