@@ -5,7 +5,7 @@ from sys import exit
 
 from colorama import Fore, Back, Style
 
-from output_utils import OUTPUT_CHOICES, OUTPUT_FILE, OUTPUT_PRINT
+from output_utils import OUTPUT_CHOICES, OUTPUT_FILE, OUTPUT_PRINT, FORMAT_TABLE, FORMAT_DESC, FORMAT_TYPES
 
 
 def args_acceptable(args):
@@ -55,32 +55,6 @@ def gather_args(debug=False):
         formatter_class=RawTextHelpFormatter,
         prog="CHLOE.exe",
         description="Recursively searches a directory of files for a given value.",
-        epilog=f"""
-=======================
-
-### Usage examples
-
-Searching for the word "test" in this dir.
-
-    {Fore.CYAN}CHLOE.exe --search_terms test
-
-{Fore.RESET}Searching for the word "test" and "phrase" in  a specified dir.
-
-    {Fore.CYAN}CHLOE.exe path/to/dir --search_terms test run
-
-{Fore.RESET}Searching for the word "java" in this dir, avoiding dirs named ".git" and "target".
-
-    {Fore.CYAN}CHLOE.exe --search_terms java --dirs_to_avoid ".git" target
-
-{Fore.RESET}Searching for the phrase "Who Framed Roger Rabbit?" in this dir, saving the output to a file.
-
-    {Fore.CYAN}CHLOE.exe --search_terms "Who Framed Roger Rabbit?" --output File
-
-{Fore.RESET}Searching for the phrase "test example" in .xml and .html files in this dir.
-
-    {Fore.CYAN}CHLOE.exe --search_terms "test example" --target_exts .xml .html
-{Fore.RESET}
-""",
     )
 
     arg_parser.add_argument(
@@ -104,6 +78,13 @@ Searching for the word "test" in this dir.
         choices=OUTPUT_CHOICES,
         default=OUTPUT_PRINT,
         help="How to provide the results.",
+    )
+
+    arg_parser.add_argument(
+        '--out_format',
+        choices=FORMAT_TYPES,
+        default=FORMAT_DESC,
+        help=f'The formatting of the output. {FORMAT_DESC} means a descriptive output. {FORMAT_TABLE} means tabular output (or a .csv if --output File is used.).'
     )
 
     arg_parser.add_argument(
