@@ -1,7 +1,7 @@
 import json
-from pathlib import Path
-import uuid
 import traceback
+
+import file_utils
 
 
 class FileProcessor:
@@ -23,21 +23,6 @@ class FileProcessor:
             except Exception as e:
 
                 yield e, file
-
-    @staticmethod
-    def determine_file_name(tmp_dir):
-
-        file_name = None
-
-        while file_name is None:
-
-            file_name = uuid.uuid4().__str__()
-
-            file_name = Path(tmp_dir).joinpath(file_name)
-
-            file_name = None if file_name.exists() else file_name
-
-        return file_name
 
     @staticmethod
     def process_files(tmp_dir, files, search_terms):
@@ -62,7 +47,7 @@ class FileProcessor:
 
             if any([len(collec) > 0 for collec in [results, errors]]):
 
-                filename = FileProcessor.determine_file_name(tmp_dir)
+                filename = file_utils.determine_file_name(tmp_dir)
 
                 if results:
 
@@ -81,10 +66,3 @@ class FileProcessor:
         except:
 
             traceback.print_exc()
-
-    @staticmethod
-    def flush_and_close_file(file):
-
-        file.flush()
-
-        file.close()

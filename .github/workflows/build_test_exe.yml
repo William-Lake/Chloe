@@ -20,4 +20,4 @@ jobs:
       - name: Build EXE
         run: pyinstaller --onefile search_files_for_value.py
       - name: Test Executable
-        run: .\dist\search_files_for_value.exe -h
+        run: .\dist\search_files_for_value.exe --search_terms WILL
