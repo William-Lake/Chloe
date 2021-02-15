@@ -1,1 +1,1 @@
-Added arg for listing each line a search_term shows up in within a file.
+Alterations to argparse so search_terms can include terms starting with a dash.

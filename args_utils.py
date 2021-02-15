@@ -1,4 +1,4 @@
-from argparse import ArgumentParser, RawTextHelpFormatter
+from argparse import ArgumentParser, RawTextHelpFormatter, REMAINDER
 from multiprocessing import cpu_count
 from pathlib import Path
 from sys import exit
@@ -77,10 +77,6 @@ def gather_args(debug=False):
     )
 
     arg_parser.add_argument(
-        "--search_terms", nargs="+", help="The terms to search for."
-    )
-
-    arg_parser.add_argument(
         "--dirs_to_avoid", nargs="*", help="Directories to avoid searching."
     )
 
@@ -135,6 +131,10 @@ def gather_args(debug=False):
         action="store_true",
         help="If provided, will also identify what line each search term is on. WARNING: INCREASES RUNTIME SIGNIFICANTLY.",
     )
+    
+    arg_parser.add_argument(
+        "--search_terms", nargs=REMAINDER, help="The terms to search for."
+    )    
 
     if debug:
 
