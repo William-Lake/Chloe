@@ -1,2 +1,1 @@
-Removed epilog from help text.
-Added arg re: output types (Table, Descriptive).
+Added arg for listing each line a search_term shows up in within a file.

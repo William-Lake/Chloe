@@ -5,7 +5,14 @@ from sys import exit
 
 from colorama import Fore, Back, Style
 
-from output_utils import OUTPUT_CHOICES, OUTPUT_FILE, OUTPUT_PRINT, FORMAT_TABLE, FORMAT_DESC, FORMAT_TYPES
+from output_utils import (
+    OUTPUT_CHOICES,
+    OUTPUT_FILE,
+    OUTPUT_PRINT,
+    FORMAT_TABLE,
+    FORMAT_DESC,
+    FORMAT_TYPES,
+)
 
 
 def args_acceptable(args):
@@ -48,7 +55,7 @@ def args_acceptable(args):
 
     if args.line_num:
 
-        print('WARNING: --line_num MAY SIGNIFICANTLY INCREASE RUNTIME!')
+        print("WARNING: --line_num MAY SIGNIFICANTLY INCREASE RUNTIME!")
 
     return True, None
 
@@ -85,10 +92,10 @@ def gather_args(debug=False):
     )
 
     arg_parser.add_argument(
-        '--out_format',
+        "--out_format",
         choices=FORMAT_TYPES,
         default=FORMAT_DESC,
-        help=f'The formatting of the output. {FORMAT_DESC} means a descriptive output. {FORMAT_TABLE} means tabular output (or a .csv if --output File is used.).'
+        help=f"The formatting of the output. {FORMAT_DESC} means a descriptive output. {FORMAT_TABLE} means tabular output (or a .csv if --output File is used.).",
     )
 
     arg_parser.add_argument(
@@ -124,9 +131,9 @@ def gather_args(debug=False):
     )
 
     arg_parser.add_argument(
-        '--line_num',
-        action='store_true',
-        help='If provided, will also identify what line each search term is on. WARNING: INCREASES RUNTIME SIGNIFICANTLY.'
+        "--line_num",
+        action="store_true",
+        help="If provided, will also identify what line each search term is on. WARNING: INCREASES RUNTIME SIGNIFICANTLY.",
     )
 
     if debug:

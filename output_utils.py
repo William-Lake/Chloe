@@ -15,9 +15,9 @@ OUTPUT_PRINT = "Print"
 
 OUTPUT_CHOICES = [OUTPUT_FILE, OUTPUT_PRINT]
 
-FORMAT_TABLE = 'Table'
+FORMAT_TABLE = "Table"
 
-FORMAT_DESC = 'Desc'
+FORMAT_DESC = "Desc"
 
 FORMAT_TYPES = [FORMAT_TABLE, FORMAT_DESC]
 
@@ -41,7 +41,7 @@ def determine_output_func(args):
         return print, None
 
 
-def write_descriptive_output(args,results_path,errors_path,output_func):
+def write_descriptive_output(args, results_path, errors_path, output_func):
 
     if errors_path.exists():
 
@@ -144,28 +144,30 @@ There was a common thread in {freq_type} when searching for {search_term}. The f
 
     else:
 
-        output_func("None of the provided search terms were found in any of the files.")    
+        output_func("None of the provided search terms were found in any of the files.")
 
 
-def write_tabular_output(args,results_path,errors_path,output_func,out_path):
+def write_tabular_output(args, results_path, errors_path, output_func, out_path):
 
     if errors_path.exists():
 
         error_results = json.loads(open(errors_path).read())
 
-        error_df = pd.DataFrame({'Path':[],'Error':[]})
+        error_df = pd.DataFrame({"Path": [], "Error": []})
 
         for path, error in error_results.items():
 
-            error_df.loc[len(error_df)] = [path,error]
+            error_df.loc[len(error_df)] = [path, error]
 
         if out_path is not None:
 
-            error_out_path = out_path.with_name(out_path.stem + '_error').with_suffix('.csv')
+            error_out_path = out_path.with_name(out_path.stem + "_error").with_suffix(
+                ".csv"
+            )
 
-            print(f'Saving errors to {error_out_path.__str__()}')
+            print(f"Saving errors to {error_out_path.__str__()}")
 
-            error_df.to_csv(error_out_path,index=False)
+            error_df.to_csv(error_out_path, index=False)
 
         else:
 
@@ -175,19 +177,19 @@ def write_tabular_output(args,results_path,errors_path,output_func,out_path):
 
     if any([len(val) > 0 for val in results.values()]):
 
-        if isinstance(list(results.values())[0],list):
+        if isinstance(list(results.values())[0], list):
 
-            results_df = pd.DataFrame({'Search Term':[],'Path':[]})
+            results_df = pd.DataFrame({"Search Term": [], "Path": []})
 
             for search_term, locations in results.items():
 
                 for loc in locations:
 
-                    results_df.loc[len(results_df)] = [search_term,loc]
+                    results_df.loc[len(results_df)] = [search_term, loc]
 
             if out_path is not None:
 
-                results_df.to_csv(out_path,index=False)
+                results_df.to_csv(out_path, index=False)
 
             else:
 
@@ -195,25 +197,25 @@ def write_tabular_output(args,results_path,errors_path,output_func,out_path):
 
         else:
 
-            results_df = pd.DataFrame({'Search Term':[],'Path':[], 'Line #':[]})
+            results_df = pd.DataFrame({"Search Term": [], "Path": [], "Line #": []})
 
             for search_term, locations in results.items():
 
-                for loc,line_nums in locations.items():
+                for loc, line_nums in locations.items():
 
-                    results_df.loc[len(results_df)] = [search_term,loc,line_nums]
+                    results_df.loc[len(results_df)] = [search_term, loc, line_nums]
 
             if out_path is not None:
 
-                results_df.to_csv(out_path,index=False)
+                results_df.to_csv(out_path, index=False)
 
             else:
 
-                output_func(results_df.to_string())                            
+                output_func(results_df.to_string())
 
     else:
 
-        output_func("None of the provided search terms were found in any of the files.")        
+        output_func("None of the provided search terms were found in any of the files.")
 
 
 def provide_output(args, results_path, errors_path):
@@ -222,11 +224,11 @@ def provide_output(args, results_path, errors_path):
 
     if args.out_format == FORMAT_DESC:
 
-        write_descriptive_output(args,results_path,errors_path,output_func)
+        write_descriptive_output(args, results_path, errors_path, output_func)
 
     else:
 
-        write_tabular_output(args,results_path,errors_path,output_func,out_path)
+        write_tabular_output(args, results_path, errors_path, output_func, out_path)
 
 
 def print_runtime(start_time):

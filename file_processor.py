@@ -74,11 +74,7 @@ class FileProcessor:
     @staticmethod
     def add_line_num_to_results(results):
 
-        new_results = {
-            search_term:{}
-            for search_term
-            in set(results.keys())
-        }
+        new_results = {search_term: {} for search_term in set(results.keys())}
 
         file_search_terms = {}
 
@@ -86,13 +82,16 @@ class FileProcessor:
 
             for file in files:
 
-                if file not in file_search_terms.keys(): file_search_terms[file] = set()
+                if file not in file_search_terms.keys():
+                    file_search_terms[file] = set()
 
                 file_search_terms[file].add(search_term)
 
         for file, search_terms in file_search_terms.items():
 
-            for search_term, line_num in FileProcessor.yield_lines_with_search_terms(file,search_terms):
+            for search_term, line_num in FileProcessor.yield_lines_with_search_terms(
+                file, search_terms
+            ):
 
                 if file not in new_results[search_term].keys():
 
@@ -103,9 +102,9 @@ class FileProcessor:
         return new_results
 
     @staticmethod
-    def yield_lines_with_search_terms(file,search_terms):
+    def yield_lines_with_search_terms(file, search_terms):
 
-        with open(file,'rb') as in_file:
+        with open(file, "rb") as in_file:
 
             for idx, line in enumerate(in_file):
 
@@ -114,4 +113,3 @@ class FileProcessor:
                     if search_term.upper() in str(line).upper():
 
                         yield search_term, idx + 1
-

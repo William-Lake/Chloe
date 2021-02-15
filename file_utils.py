@@ -29,7 +29,7 @@ def generate_out_file_path(args):
 
     file_name = f"File_Search_Results_{date_str}"
 
-    out_suffix = '.txt' if args.out_format == FORMAT_DESC else '.csv'
+    out_suffix = ".txt" if args.out_format == FORMAT_DESC else ".csv"
 
     return Path(file_name).with_suffix(out_suffix)
 
@@ -61,7 +61,7 @@ def save_results(filename, results_path):
 
             if search_term in og_results.keys():
 
-                if isinstance(target_files,list):
+                if isinstance(target_files, list):
 
                     og_results[search_term].extend(target_files)
 
@@ -73,7 +73,9 @@ def save_results(filename, results_path):
 
                             og_results[search_term][file] = []
 
-                        og_results[search_term][file].append(', '.join(str(line_num) for line_num in line_nums))
+                        og_results[search_term][file].append(
+                            ", ".join(str(line_num) for line_num in line_nums)
+                        )
 
             else:
 

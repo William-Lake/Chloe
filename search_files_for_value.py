@@ -129,7 +129,7 @@ if __name__ == "__main__":
                     futures.append(
                         pool.apply_async(
                             FileProcessor.process_files,
-                            (tmp_dir, files, args.search_terms,args.line_num),
+                            (tmp_dir, files, args.search_terms, args.line_num),
                         )
                     )
 
