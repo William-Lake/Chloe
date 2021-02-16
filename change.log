@@ -1,2 +1,1 @@
-Made searches case-sensitive by default.
-Added arg to turn off case-sensitivity.
+Removed out_format arg and associated code.

@@ -9,9 +9,6 @@ from output_utils import (
     OUTPUT_CHOICES,
     OUTPUT_FILE,
     OUTPUT_PRINT,
-    FORMAT_TABLE,
-    FORMAT_DESC,
-    FORMAT_TYPES,
 )
 
 
@@ -85,13 +82,6 @@ def gather_args(debug=False):
         choices=OUTPUT_CHOICES,
         default=OUTPUT_PRINT,
         help="How to provide the results.",
-    )
-
-    arg_parser.add_argument(
-        "--out_format",
-        choices=FORMAT_TYPES,
-        default=FORMAT_DESC,
-        help=f"The formatting of the output. {FORMAT_DESC} means a descriptive output. {FORMAT_TABLE} means tabular output (or a .csv if --output File is used.).",
     )
 
     arg_parser.add_argument(

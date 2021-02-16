@@ -5,8 +5,6 @@ import uuid
 
 from tqdm import tqdm
 
-from output_utils import FORMAT_DESC
-
 
 def determine_file_name(tmp_dir):
 
@@ -27,11 +25,9 @@ def generate_out_file_path(args):
 
     date_str = datetime.now().strftime("%m-%d-%Y_%H-%M-%S")
 
-    file_name = f"File_Search_Results_{date_str}"
+    file_name = f"File_Search_Results_{date_str}.csv"
 
-    out_suffix = ".txt" if args.out_format == FORMAT_DESC else ".csv"
-
-    return Path(file_name).with_suffix(out_suffix)
+    return Path(file_name).with_suffix(".csv")
 
 
 def flush_and_close_file(file):
