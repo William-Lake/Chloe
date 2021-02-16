@@ -34,6 +34,7 @@ def determine_output_func(args):
 
         return print, None
 
+
 def provide_output(args, results_path, errors_path):
 
     output_func, out_path = determine_output_func(args)
@@ -92,7 +93,11 @@ def provide_output(args, results_path, errors_path):
 
                 for loc, line_nums in locations.items():
 
-                    results_df.loc[len(results_df)] = [search_term, loc, line_nums]
+                    results_df.loc[len(results_df)] = [
+                        search_term,
+                        loc,
+                        ", ".join([str(ln) for ln in line_nums]),
+                    ]
 
             if out_path is not None:
 

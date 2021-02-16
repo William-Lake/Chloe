@@ -120,7 +120,7 @@ if __name__ == "__main__":
 
             print("Temp Dir: " + tmp_dir)
 
-            with Pool(processes=args.num_processes) as pool:
+            with Pool(processes=args.processes) as pool:
 
                 futures = []
 
@@ -129,11 +129,17 @@ if __name__ == "__main__":
                     futures.append(
                         pool.apply_async(
                             FileProcessor.process_files,
-                            (tmp_dir, files, args.search_terms, args.line_num,args.case_insensitive),
+                            (
+                                tmp_dir,
+                                files,
+                                args.search_terms,
+                                args.line_num,
+                                args.case_insensitive,
+                            ),
                         )
                     )
 
-                    if len(futures) == args.num_futures_in_batch:
+                    if len(futures) == args.max_futures:
 
                         resolve_futures(futures, results_path, errors_path)
 

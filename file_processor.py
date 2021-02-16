@@ -6,7 +6,7 @@ import file_utils
 
 class FileProcessor:
     @staticmethod
-    def yield_files_with_terms(files, search_terms,case_insensitive):
+    def yield_files_with_terms(files, search_terms, case_insensitive):
 
         for file in files:
 
@@ -16,7 +16,9 @@ class FileProcessor:
 
                 for search_term in search_terms:
 
-                    if (case_insensitive and search_term.upper() in file_content.upper()) or (search_term in file_content):
+                    if (
+                        case_insensitive and search_term.upper() in file_content.upper()
+                    ) or (search_term in file_content):
 
                         yield search_term, file
 
@@ -25,7 +27,7 @@ class FileProcessor:
                 yield e, file
 
     @staticmethod
-    def process_files(tmp_dir, files, search_terms, do_add_line_num,case_insensitive):
+    def process_files(tmp_dir, files, search_terms, do_add_line_num, case_insensitive):
 
         try:
 
@@ -34,7 +36,7 @@ class FileProcessor:
             errors = {}
 
             for search_term, file in FileProcessor.yield_files_with_terms(
-                files, search_terms,case_insensitive
+                files, search_terms, case_insensitive
             ):
 
                 if isinstance(search_term, Exception):
@@ -53,7 +55,9 @@ class FileProcessor:
 
                     if do_add_line_num:
 
-                        results = FileProcessor.add_line_num_to_results(results,case_insensitive)
+                        results = FileProcessor.add_line_num_to_results(
+                            results, case_insensitive
+                        )
 
                     with open(filename, "w+") as out_file:
 
@@ -72,7 +76,7 @@ class FileProcessor:
             traceback.print_exc()
 
     @staticmethod
-    def add_line_num_to_results(results,case_insensitive):
+    def add_line_num_to_results(results, case_insensitive):
 
         new_results = {search_term: {} for search_term in set(results.keys())}
 
@@ -90,7 +94,7 @@ class FileProcessor:
         for file, search_terms in file_search_terms.items():
 
             for search_term, line_num in FileProcessor.yield_lines_with_search_terms(
-                file, search_terms,case_insensitive
+                file, search_terms, case_insensitive
             ):
 
                 if file not in new_results[search_term].keys():
@@ -102,7 +106,7 @@ class FileProcessor:
         return new_results
 
     @staticmethod
-    def yield_lines_with_search_terms(file, search_terms,case_insensitive):
+    def yield_lines_with_search_terms(file, search_terms, case_insensitive):
 
         with open(file, "rb") as in_file:
 
@@ -110,6 +114,8 @@ class FileProcessor:
 
                 for search_term in search_terms:
 
-                    if (case_insensitive and search_term.upper() in str(line).upper()) or (search_term in str(line)):
+                    if (
+                        case_insensitive and search_term.upper() in str(line).upper()
+                    ) or (search_term in str(line)):
 
                         yield search_term, idx + 1

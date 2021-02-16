@@ -132,7 +132,7 @@ def yield_file_batches(args):
 
         files.append(file)
 
-        if len(files) >= args.num_files_in_batch:
+        if len(files) >= args.max_files:
 
             pbar.update(1)
 

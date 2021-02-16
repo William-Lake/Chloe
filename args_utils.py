@@ -34,25 +34,21 @@ def args_acceptable(args):
 
         return False, "Please provide at least one search term!"
 
-    if args.num_futures_in_batch <= 0:
+    if args.max_futures <= 0:
 
         return False, "The number of futures in the batch must be >= 1!"
 
-    if args.num_files_in_batch <= 1:
+    if args.max_files <= 1:
 
         return False, "The number of files in the batch must be > 1!"
 
-    if args.num_processes <= 0:
+    if args.processes <= 0:
 
         return False, "The number of proceses must be >= 1!"
 
-    if args.num_processes > cpu_count():
+    if args.processes > cpu_count():
 
         return False, f"The number of processes must be <= {cpu_count()}!"
-
-    if args.line_num:
-
-        print("WARNING: --line_num MAY SIGNIFICANTLY INCREASE RUNTIME!")
 
     return True, None
 
@@ -74,10 +70,11 @@ def gather_args(debug=False):
     )
 
     arg_parser.add_argument(
-        "--dirs_to_avoid", nargs="*", help="Directories to avoid searching."
+        "-dta", "--dirs-to-avoid", nargs="*", help="Directories to avoid searching."
     )
 
     arg_parser.add_argument(
+        "-o",
         "--output",
         choices=OUTPUT_CHOICES,
         default=OUTPUT_PRINT,
@@ -85,15 +82,22 @@ def gather_args(debug=False):
     )
 
     arg_parser.add_argument(
-        "--target_exts", nargs="*", help="The target file extensions to look for."
+        "-te",
+        "--target-exts",
+        nargs="*",
+        help="Used if you only want to search within files with particular extensions.",
     )
 
     arg_parser.add_argument(
-        "--exts_to_avoid", nargs="*", help="The target file extensions to avoid."
+        "-eta",
+        "--exts-to-avoid",
+        nargs="*",
+        help="Used if you want to avoid searching within files with particular extensions.",
     )
 
     arg_parser.add_argument(
-        "--num_futures_in_batch",
+        "-mfu",
+        "--max-futures",
         nargs="?",
         type=int,
         default=50,
@@ -101,37 +105,40 @@ def gather_args(debug=False):
     )
 
     arg_parser.add_argument(
-        "--num_files_in_batch",
+        "-mfi",
+        "--max-files",
         nargs="?",
         type=int,
         default=100,
-        help="The max number of files in each processing batch.",
+        help="The max number of files allowed in each processing batch.",
     )
 
     arg_parser.add_argument(
-        "--num_processes",
+        "-p",
+        "--processes",
         nargs="?",
         type=int,
         default=cpu_count(),
-        help="The number of processes to use when processing batches.",
+        help="The number of processes to use.",
     )
 
     arg_parser.add_argument(
-        "--line_num",
+        "-ln",
+        "--line-num",
         action="store_true",
-        help="If provided, will also identify what line each search term is on. WARNING: INCREASES RUNTIME SIGNIFICANTLY.",
+        help="If provided, will add a column to the results identifying what lines a search term showed up in within the file.",
     )
 
     arg_parser.add_argument(
-        '-i',
-        action='store_true',
-        help='If provided, will turn off case-sensitivity.',
-        dest='case_insensitive'
+        "-i",
+        "--case-insensitive",
+        action="store_true",
+        help="If provided, will turn off case-sensitivity.",
     )
-    
+
     arg_parser.add_argument(
-        "--search_terms", nargs=REMAINDER, help="The terms to search for."
-    )    
+        "-st", "--search-terms", nargs=REMAINDER, help="The terms to search for."
+    )
 
     if debug:
 
