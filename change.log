@@ -1,4 +1,1 @@
-Closed #22.
-Closed #21.
-Removed warnings re: line-num usage.
-Renamed --num-files-in-batch, --num-futures-in-batch, and --num-processes to --max-files, --max-futures, and --processes respectively.
+[#23] Replaced pathlib.Path.glob with os.scandir.
