@@ -112,7 +112,7 @@ def provide_output(args, results_path, errors_path):
         output_func("None of the provided search terms were found in any of the files.")
 
 
-def print_runtime(start_time):
+def print_runtime(start_time,num_files,num_processes):
 
     time_in_seconds = time.time() - start_time
 
@@ -126,5 +126,26 @@ def print_runtime(start_time):
 
     if total_time < 1:
         total_time, time_label = (time_in_seconds, "seconds")
+        
+    time_per_file = (total_time / num_files) if num_files > 0 else total_time
+    
+    time_per_process = total_time / num_processes
 
-    print(f"Total runtime: {total_time:.2f} {time_label}.")
+    print(f'''
+###########################################################
+
+    Total Runtime:     {total_time:.2f} {time_label}
+    
+    # Files Processed: {num_files}
+    Time/File:         {time_per_file:.2f} {time_label}
+    
+    # Processes:       {num_processes}
+    Time/Process:      {time_per_process:.2f} {time_label}
+
+###########################################################
+''')
+    
+    '''
+    Time per file
+    Time per process
+    '''
