@@ -1,1 +1,1 @@
-[#23] Replaced pathlib.Path.glob with os.scandir.
+[#17] Added some extra stats re: runtime.
