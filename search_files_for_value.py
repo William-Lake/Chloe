@@ -103,7 +103,9 @@ if __name__ == "__main__":
     freeze_support()
 
     start_time = time.time()
-    
+
+    num_batches = 0
+
     num_files = 0
 
     try:
@@ -127,7 +129,9 @@ if __name__ == "__main__":
                 futures = []
 
                 for files in file_utils.yield_file_batches(args):
-                    
+
+                    num_batches += 1
+
                     num_files += len(files)
 
                     futures.append(
@@ -157,4 +161,4 @@ if __name__ == "__main__":
 
         traceback.print_exc()
 
-    output_utils.print_runtime(start_time,num_files,args.processes)
+    output_utils.print_runtime(start_time, num_batches, num_files, args.processes)

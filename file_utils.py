@@ -24,11 +24,17 @@ def determine_file_name(tmp_dir):
 
 def generate_out_file_path(args):
 
-    date_str = datetime.now().strftime("%m-%d-%Y_%H-%M-%S")
+    if args.out_file is not None:
 
-    file_name = f"File_Search_Results_{date_str}.csv"
+        return args.out_file.with_suffix(".csv")
 
-    return Path(file_name).with_suffix(".csv")
+    else:
+
+        date_str = datetime.now().strftime("%m-%d-%Y_%H-%M-%S")
+
+        file_name = f"File_Search_Results_{date_str}.csv"
+
+        return Path(file_name).with_suffix(".csv")
 
 
 def flush_and_close_file(file):
@@ -106,20 +112,25 @@ def yield_files(args):
         ]
 
     for ext in target_exts:
-        
-        yield from yield_files_with_extension(ext,args.search_loc,args.dirs_to_avoid,exts_to_avoid)
-            
-def yield_files_with_extension(ext,search_loc,dirs_to_avoid,exts_to_avoid):
-    
+
+        yield from yield_files_with_extension(
+            ext, args.search_loc, args.dirs_to_avoid, exts_to_avoid
+        )
+
+
+def yield_files_with_extension(ext, search_loc, dirs_to_avoid, exts_to_avoid):
+
     # I find that os.scandir is faster than pathlib.Path.glob
     for file in tqdm(os.scandir(search_loc.__str__()), leave=False, desc="Files"):
-        
+
         file = Path(file.path)
 
         if file.is_dir():
-            
-            yield from yield_files_with_extension(ext,file.__str__(),dirs_to_avoid,exts_to_avoid)
-        
+
+            yield from yield_files_with_extension(
+                ext, file.__str__(), dirs_to_avoid, exts_to_avoid
+            )
+
         if dirs_to_avoid is not None and any(
             [dir in file.parts for dir in dirs_to_avoid]
         ):
@@ -127,15 +138,16 @@ def yield_files_with_extension(ext,search_loc,dirs_to_avoid,exts_to_avoid):
 
         if file.suffix in exts_to_avoid:
             continue
-        
+
         # FIXME This should be a constant in args_utils
-        if ext != '*' and file.suffix != ext:
-            
+        if ext != "*" and file.suffix != ext:
+
             continue
 
         # Not sure why this would be necessary, but it is.
-        if not file.is_dir(): yield file
-        
+        if not file.is_dir():
+            yield file
+
 
 def yield_file_batches(args):
 

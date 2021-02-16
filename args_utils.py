@@ -12,6 +12,10 @@ from output_utils import (
 )
 
 
+DEFAULT_MAX_FILES = 100
+DEFAULT_MAX_FUTURES = 50
+
+
 def args_acceptable(args):
 
     search_loc = args.search_loc
@@ -50,6 +54,40 @@ def args_acceptable(args):
 
         return False, f"The number of processes must be <= {cpu_count()}!"
 
+    if args.out_file is not None and args.out_file.suffix != "":
+
+        if args.out_file.suffix != ".csv":
+
+            print(
+                f"""
+As a general heads up your out-file will always be a .csv
+Even though you provided an out-file with the extension {args.out_file.suffix},
+it will be changed to {args.out_file.with_suffix('.csv').__str__()}                  
+"""
+            )
+
+        vars(args)["out_file"] = args.out_file.with_suffix("")
+
+    if args.out_file is not None and args.out_file.with_suffix(".csv").exists():
+
+        print(f'{args.out_file.with_suffix(".csv")} already exists.')
+
+        idx = 2
+
+        new_file_name = args.out_file.name
+
+        while args.out_file.with_name(new_file_name).with_suffix(".csv").exists():
+
+            new_file_name = args.out_file.stem + f" ({idx})"
+
+            idx += 1
+
+        print(
+            f'Instead the out_file will be {args.out_file.with_name(new_file_name).with_suffix(".csv").__str__()}\n\n'
+        )
+
+        vars(args)["out_file"] = args.out_file.with_name(new_file_name)
+
     return True, None
 
 
@@ -66,19 +104,25 @@ def gather_args(debug=False):
         type=Path,
         nargs="?",
         default=Path("."),
-        help="The location to search",
+        help="The location to search. Default is the current directory.",
+    )
+
+    arg_parser.add_argument(
+        "-i",
+        "--case-insensitive",
+        action="store_true",
+        help="If provided, will turn off case-sensitivity.",
+    )
+
+    arg_parser.add_argument(
+        "-ln",
+        "--line-num",
+        action="store_true",
+        help="If provided, will add a column to the results identifying what lines a search term showed up in within the file.",
     )
 
     arg_parser.add_argument(
         "-dta", "--dirs-to-avoid", nargs="*", help="Directories to avoid searching."
-    )
-
-    arg_parser.add_argument(
-        "-o",
-        "--output",
-        choices=OUTPUT_CHOICES,
-        default=OUTPUT_PRINT,
-        help="How to provide the results.",
     )
 
     arg_parser.add_argument(
@@ -100,8 +144,8 @@ def gather_args(debug=False):
         "--max-futures",
         nargs="?",
         type=int,
-        default=50,
-        help="The number of futures allowed in a group before pausing to resolve them.",
+        default=DEFAULT_MAX_FUTURES,
+        help=f"The number of futures allowed in a group before pausing to resolve them. Default is {DEFAULT_MAX_FUTURES}.",
     )
 
     arg_parser.add_argument(
@@ -109,8 +153,8 @@ def gather_args(debug=False):
         "--max-files",
         nargs="?",
         type=int,
-        default=100,
-        help="The max number of files allowed in each processing batch.",
+        default=DEFAULT_MAX_FILES,
+        help=f"The max number of files to process in each batch. Default is {DEFAULT_MAX_FILES}.",
     )
 
     arg_parser.add_argument(
@@ -119,25 +163,29 @@ def gather_args(debug=False):
         nargs="?",
         type=int,
         default=cpu_count(),
-        help="The number of processes to use.",
+        help=f"The number of processes to use. Default is {cpu_count()}.",
     )
 
     arg_parser.add_argument(
-        "-ln",
-        "--line-num",
-        action="store_true",
-        help="If provided, will add a column to the results identifying what lines a search term showed up in within the file.",
+        "-o",
+        "--output",
+        choices=OUTPUT_CHOICES,
+        default=OUTPUT_PRINT,
+        help="How to provide the results. Default is stdout.",
     )
 
     arg_parser.add_argument(
-        "-i",
-        "--case-insensitive",
-        action="store_true",
-        help="If provided, will turn off case-sensitivity.",
+        "-of",
+        "--out-file",
+        type=Path,
+        help="A filepath or filename to save the result to. Default is a generated name.",
     )
 
     arg_parser.add_argument(
-        "-st", "--search-terms", nargs=REMAINDER, help="The terms to search for."
+        "-st",
+        "--search-terms",
+        nargs=REMAINDER,
+        help="The terms to search for. Must be the last argument.",
     )
 
     if debug:
