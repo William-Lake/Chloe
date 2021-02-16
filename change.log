@@ -1,1 +1,2 @@
-Alterations to argparse so search_terms can include terms starting with a dash.
+Made searches case-sensitive by default.
+Added arg to turn off case-sensitivity.

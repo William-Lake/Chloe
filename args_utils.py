@@ -131,6 +131,13 @@ def gather_args(debug=False):
         action="store_true",
         help="If provided, will also identify what line each search term is on. WARNING: INCREASES RUNTIME SIGNIFICANTLY.",
     )
+
+    arg_parser.add_argument(
+        '-i',
+        action='store_true',
+        help='If provided, will turn off case-sensitivity.',
+        dest='case_insensitive'
+    )
     
     arg_parser.add_argument(
         "--search_terms", nargs=REMAINDER, help="The terms to search for."
