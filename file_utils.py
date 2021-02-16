@@ -1,5 +1,6 @@
 from datetime import datetime
 import json
+import os
 from pathlib import Path
 import uuid
 
@@ -105,22 +106,36 @@ def yield_files(args):
         ]
 
     for ext in target_exts:
+        
+        yield from yield_files_with_extension(ext,args.search_loc,args.dirs_to_avoid,exts_to_avoid)
+            
+def yield_files_with_extension(ext,search_loc,dirs_to_avoid,exts_to_avoid):
+    
+    # I find that os.scandir is faster than pathlib.Path.glob
+    for file in tqdm(os.scandir(search_loc.__str__()), leave=False, desc="Files"):
+        
+        file = Path(file.path)
 
-        for file in tqdm(args.search_loc.glob(f"**/{ext}"), leave=False, desc="Files"):
+        if file.is_dir():
+            
+            yield from yield_files_with_extension(ext,file.__str__(),dirs_to_avoid,exts_to_avoid)
+        
+        if dirs_to_avoid is not None and any(
+            [dir in file.parts for dir in dirs_to_avoid]
+        ):
+            continue
 
-            if file.is_dir():
-                continue
+        if file.suffix in exts_to_avoid:
+            continue
+        
+        # FIXME This should be a constant in args_utils
+        if ext != '*' and file.suffix != ext:
+            
+            continue
 
-            if args.dirs_to_avoid is not None and any(
-                [dir in file.parts for dir in args.dirs_to_avoid]
-            ):
-                continue
-
-            if file.suffix in exts_to_avoid:
-                continue
-
-            yield file
-
+        # Not sure why this would be necessary, but it is.
+        if not file.is_dir(): yield file
+        
 
 def yield_file_batches(args):
 
