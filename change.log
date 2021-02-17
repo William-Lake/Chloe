@@ -1,3 +1,3 @@
-[#16] Added an arg for naming the out-file.
-Added a couple other things re: runtime output.
-Re-organized some of the runtime output.
+Fixed testing workflow.
+[#20] Replaced json implementation with pandas.
+Implemented colorama a bit more. 
