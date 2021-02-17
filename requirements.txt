@@ -2,3 +2,4 @@ tqdm
 colorama
 black
 pandas
+pyarrow

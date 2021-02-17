@@ -47,7 +47,9 @@ def yield_completed_futures(futures):
 
 def resolve_futures(futures, results_path, errors_path):
 
-    pbar = tqdm(desc="# New Results", leave=False)
+    pbar_results = tqdm(desc="# New Results", leave=False)
+
+    pbar_error = tqdm(desc='# Errors',leave=False)
 
     for future in yield_completed_futures(futures):
 
@@ -55,33 +57,19 @@ def resolve_futures(futures, results_path, errors_path):
 
         if filename is not None:
 
-            num_new_results = file_utils.save_results(filename, results_path)
-
-            pbar.update(num_new_results)
-
             error_file = filename.with_suffix(".error")
 
-            if error_file.exists():
+            for target_file, target_pbar, target_results_path in [[filename,pbar_results,results_path],[error_file,pbar_error,errors_path]]:
 
-                error_content = json.loads(open(error_file).read())
+                if target_file.exists():
 
-                existing_errors = (
-                    {}
-                    if not errors_path.exists()
-                    else json.loads(open(errors_path).read())
-                )
+                    num_new_results = file_utils.save_results(target_file, target_results_path)
 
-                existing_errors.update(error_content)
+                    target_pbar.update(num_new_results)
 
-                with open(errors_path, "w+") as out_file:
-                    out_file.write(json.dumps(existing_errors))
+                    target_file.unlink()
 
-                error_file.unlink()
-
-        filename.unlink()
-
-    pbar.close()
-
+    for pbar in [pbar_results, pbar_error]: pbar.close()
 
 def print_banner():
 

@@ -5,6 +5,7 @@ from pathlib import Path
 import statistics
 import time
 
+from colorama import Fore, Back, Style
 import pandas as pd
 
 import file_utils
@@ -16,105 +17,38 @@ OUTPUT_PRINT = "Print"
 OUTPUT_CHOICES = [OUTPUT_FILE, OUTPUT_PRINT]
 
 
-def determine_output_func(args):
-
-    if args.output == OUTPUT_FILE:
-
-        out_file_path = file_utils.generate_out_file_path(args)
-
-        print("### Results will be saved to " + out_file_path.__str__())
-
-        out_file = open(out_file_path, "w+")
-
-        atexit.register(file_utils.flush_and_close_file, out_file)
-
-        return out_file.write, out_file_path
-
-    else:
-
-        return print, None
-
-
 def provide_output(args, results_path, errors_path):
 
-    output_func, out_path = determine_output_func(args)
+    out_path = file_utils.generate_out_file_path(args)
 
-    if errors_path.exists():
+    for df_path,df_name in [[results_path,'Search Results'],[errors_path,'Errors']]:
 
-        error_results = json.loads(open(errors_path).read())
+        if df_path.exists():
 
-        error_df = pd.DataFrame({"Path": [], "Error": []})
+            df = pd.read_feather(df_path)
 
-        for path, error in error_results.items():
+            num_results = len(df)
 
-            error_df.loc[len(error_df)] = [path, error]
+            print(f'{Fore.CYAN}There were {Fore.MAGENTA}{num_results} {Fore.CYAN}{df_name}.{Fore.RESET}')
 
-        if out_path is not None:
+            if df.empty: continue
 
-            error_out_path = out_path.with_name(out_path.stem + "_error").with_suffix(
+            if args.output == OUTPUT_FILE:
+
+                df_outpath = out_path.with_name(out_path.stem + f"_{df_name}").with_suffix(
                 ".csv"
-            )
+                )
 
-            print(f"Saving errors to {error_out_path.__str__()}")
+                df.to_csv(df_outpath,index=False)
 
-            error_df.to_csv(error_out_path, index=False)
-
-        else:
-
-            output_func(error_df.to_string())
-
-    results = json.loads(open(results_path).read()) if results_path.exists() else {}
-
-    if any([len(val) > 0 for val in results.values()]):
-
-        if isinstance(list(results.values())[0], list):
-
-            results_df = pd.DataFrame({"Search Term": [], "Path": []})
-
-            for search_term, locations in results.items():
-
-                for loc in locations:
-
-                    results_df.loc[len(results_df)] = [search_term, loc]
-
-            if out_path is not None:
-
-                results_df.to_csv(out_path, index=False)
+                print(f'Saved {df_name} to {df_outpath.__str__()}')
 
             else:
 
-                output_func(results_df.to_string())
-
-        else:
-
-            results_df = pd.DataFrame({"Search Term": [], "Path": [], "Line #": []})
-
-            for search_term, locations in results.items():
-
-                for loc, line_nums in locations.items():
-
-                    results_df.loc[len(results_df)] = [
-                        search_term,
-                        loc,
-                        ", ".join([str(ln) for ln in line_nums]),
-                    ]
-
-            if out_path is not None:
-
-                results_df.to_csv(out_path, index=False)
-
-            else:
-
-                output_func(results_df.to_string())
-
-    else:
-
-        output_func("None of the provided search terms were found in any of the files.")
+                print(Fore.GREEN + Style.BRIGHT + df.to_string() + Style.RESET_ALL)
 
 
-def print_runtime(start_time, num_batches, num_files, num_processes):
-
-    time_in_seconds = time.time() - start_time
+def get_time_string_for_time(time_in_seconds):
 
     time_in_minutes = time_in_seconds / 60
 
@@ -127,24 +61,34 @@ def print_runtime(start_time, num_batches, num_files, num_processes):
     if total_time < 1:
         total_time, time_label = (time_in_seconds, "seconds")
 
-    time_per_batch = (total_time / num_batches) if num_batches > 0 else total_time
+    return f'{total_time:.2f} {time_label}'
 
-    time_per_file = (total_time / num_files) if num_files > 0 else total_time
+def print_runtime(start_time, num_batches, num_files, num_processes):
 
-    time_per_process = total_time / num_processes
+    time_in_seconds = time.time() - start_time
+
+    total_time_str = get_time_string_for_time(time_in_seconds)
+
+    time_per_batch = (time_in_seconds / num_batches) if num_batches > 0 else time_in_seconds
+
+    time_per_batch = get_time_string_for_time(time_per_batch)
+
+    time_per_file = (time_in_seconds / num_files) if num_files > 0 else time_in_seconds
+
+    time_per_file = get_time_string_for_time(time_per_file)
 
     print(
-        f"""
+        f"""{Fore.CYAN}
 ###########################################################
 
-    # Processes:       {num_processes}
-    # Batches:         {num_batches}
-    # Files Processed: {num_files}
+    # Processes:       {Fore.MAGENTA}{num_processes}{Fore.CYAN}
+    # Batches:         {Fore.MAGENTA}{num_batches}{Fore.CYAN}
+    # Files Processed: {Fore.MAGENTA}{num_files}{Fore.CYAN}
     
-    Total Runtime:     {total_time:.2f} {time_label}
-    Time/Batch:        {time_per_batch:.2f} {time_label}
-    Time/File:         {time_per_file:.2f} {time_label}
+    Total Runtime:     {Fore.MAGENTA}{total_time_str}{Fore.CYAN}
+    Time/Batch:        {Fore.MAGENTA}{time_per_batch}{Fore.CYAN}
+    Time/File:         {Fore.MAGENTA}{time_per_file}{Fore.CYAN}
 
 ###########################################################
-"""
+{Fore.RESET}"""
     )

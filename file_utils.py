@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 import uuid
 
+import pandas as pd
 from tqdm import tqdm
 
 
@@ -37,58 +38,25 @@ def generate_out_file_path(args):
         return Path(file_name).with_suffix(".csv")
 
 
-def flush_and_close_file(file):
-
-    file.flush()
-
-    file.close()
-
-
-def save_results(filename, results_path):
+def save_results(filename, save_loc):
 
     og_results = (
-        json.loads(open(results_path).read()) if results_path.exists() else None
+        pd.read_feather(save_loc) if save_loc.exists() else None
     )
 
-    the_results = json.loads(open(filename).read())
-
-    num_new_results = sum([len(v) for v in the_results.values()])
+    new_results = pd.read_feather(filename)
 
     if og_results is None:
 
-        og_results = the_results
+        og_results = new_results
 
     else:
 
-        for search_term, target_files in the_results.items():
+        og_results = pd.concat([og_results,new_results],ignore_index=True)
 
-            if search_term in og_results.keys():
+    og_results.to_feather(save_loc)
 
-                if isinstance(target_files, list):
-
-                    og_results[search_term].extend(target_files)
-
-                else:
-
-                    for file, line_nums in target_files.items():
-
-                        if file not in og_results[search_term].keys():
-
-                            og_results[search_term][file] = []
-
-                        og_results[search_term][file].append(
-                            ", ".join(str(line_num) for line_num in line_nums)
-                        )
-
-            else:
-
-                og_results[search_term] = target_files
-
-    with open(results_path, "w+") as out_file:
-
-        out_file.write(json.dumps(og_results, indent=4))
-
-    return num_new_results
+    return len(new_results)
 
 
 def yield_files(args):
