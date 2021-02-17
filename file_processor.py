@@ -104,6 +104,6 @@ class FileProcessor:
 
                 for search_term in search_terms:
 
-                    if match_func(search_term,line):
+                    if match_func(search_term,str(line)):
 
                         yield search_term, idx + 1
