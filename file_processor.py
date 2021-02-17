@@ -83,10 +83,10 @@ class FileProcessor:
 
         new_results = pd.DataFrame({'Search Term':[],'Path':[], 'Line Number':[]})
 
-        for file, search_terms in results.groupby('Path').items():
+        for file, search_terms in results.groupby('Path').groups.items():
 
             for search_term, line_num in FileProcessor.yield_lines_with_search_terms(
-                file, search_terms, case_insensitive
+                file, list(search_terms), case_insensitive
             ):
 
                 new_results.loc[len(new_results)] = [search_term,file.__str__(),line_num]
