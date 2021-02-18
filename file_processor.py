@@ -3,7 +3,7 @@ import traceback
 
 import pandas as pd
 
-import file_utils
+from file_manager import FileManager
 
 
 class FileProcessor:
@@ -56,7 +56,7 @@ class FileProcessor:
 
             if any([not df.empty for df in [results, errors]]):
 
-                filename = file_utils.determine_file_name(tmp_dir)
+                filename = FileManager.determine_file_name(tmp_dir)
 
                 if not results.empty:
 

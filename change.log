@@ -1,3 +1,1 @@
-Fixed testing workflow.
-[#20] Replaced json implementation with pandas.
-Implemented colorama a bit more. 
+Create main() and extract some code there.

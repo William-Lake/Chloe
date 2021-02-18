@@ -8,7 +8,7 @@ import time
 from colorama import Fore, Back, Style
 import pandas as pd
 
-import file_utils
+from file_manager import FileManager
 
 OUTPUT_FILE = "File"
 
@@ -17,9 +17,23 @@ OUTPUT_PRINT = "Print"
 OUTPUT_CHOICES = [OUTPUT_FILE, OUTPUT_PRINT]
 
 
+def print_banner():
+
+    print(
+        f"""{Fore.CYAN}
+
+   ___ _  _ _    ___  ___ 
+  / __| || | |  / _ \| __|
+ | (__| __ | |_| (_) | _| 
+  \___|_||_|____\___/|___|
+                          
+{Fore.YELLOW}searCH fiLes fOr valuE{Fore.RESET}
+"""
+    )
+
 def provide_output(args, results_path, errors_path):
 
-    out_path = file_utils.generate_out_file_path(args)
+    out_path = FileManager.generate_out_file_path(args)
 
     for df_path,df_name in [[results_path,'Search Results'],[errors_path,'Errors']]:
 
